@@ -1,0 +1,98 @@
+class ToDo {
+    name:string;
+    id:number;
+    constructor(name:string) {
+        this.name = name;
+        this.id = Date.now();
+    }
+}
+
+
+class List {
+    all:ToDo[]
+    constructor() {
+        this.all = JSON.parse(localStorage.getItem("okoop")as string) || [];
+    }
+
+  
+
+    add(todo:ToDo) {
+        this.all.push(todo);
+
+        // console.log(todo,"and"," ",this.all)
+        // console.log(this.todos)
+        this.saveToLocal();
+    }
+
+    deleteData(id:number) {
+
+        this.all = this.all.filter((element) => {
+            return element.id !== id
+        })
+
+        this.saveToLocal();
+
+    }
+
+    saveToLocal() {
+        localStorage.setItem("okoop", JSON.stringify(this.all));
+        this.display();
+
+    }
+
+    display() {
+        const list = document.getElementById("list")!;
+        list.innerHTML = "";
+        this.all.forEach((element) => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+          
+            ${element.name}
+            <button class="edit" data-id="${element.id}">Edit</button>
+            <button class="delete" data-id="${element.id}">Delete</button>
+          `;
+            list.appendChild(li);
+        });
+    }
+}
+
+let FinalToDo= new List();
+
+document.getElementById("add")!.addEventListener("click", () => {
+    const input = document.getElementById("input")as HTMLInputElement;
+    
+    // console.log(input.value)
+ 
+    if (input.value) {
+        let info = new ToDo(input.value);
+        FinalToDo.add(info);
+    }
+});
+
+
+document.getElementById("list")!.addEventListener("click", (event) => {
+    let target:any = event.target;
+    // console.log(target.classList.contains("delete"));
+    if (target.classList.contains("delete")) {
+        const id = parseInt(target.getAttribute("data-id"))
+        // console.log(id)
+        FinalToDo.deleteData(id)
+    }
+
+    else if (target.classList.contains("edit")) {
+        const id:number = parseInt(target.getAttribute("data-id"));
+        const edit = FinalToDo.all.filter((element) => element.id === id)[0]
+        // console.log(edit)
+        const name = prompt();
+        if (name) {
+            // console.log(name)
+            edit.name = name;
+            FinalToDo.saveToLocal();
+        }
+    }
+})
+
+
+FinalToDo.display();
+
+
